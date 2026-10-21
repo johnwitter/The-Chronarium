@@ -152,9 +152,6 @@ input,select{font:inherit;width:100%;padding:.65rem .75rem;border:2px solid var(
 .house{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:.8rem;font-weight:700}
 .house:hover{border-color:var(--navy)}
 .house[aria-pressed="true"]{background:var(--navy);color:var(--navy-ink);border-color:var(--navy)}
-.tally{list-style:none;margin:0;padding:0;display:grid;gap:.4rem;max-width:28rem}
-.tally li{display:flex;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.5rem .8rem;font-variant-numeric:tabular-nums}
-.tally li.mine{box-shadow:inset 0 0 0 2px var(--gold)}
 footer{color:var(--muted);font-size:.85rem;margin-top:3rem}
 </style>
 </head>
@@ -240,10 +237,6 @@ const ready = u => !!(u && u.topics.length);
 if (!ready(COURSES[courseKey].units[unitN])) unitN = null;
 const setRoute = () => history.replaceState(null,"","#"+courseKey+(unitN?"/"+unitN:""));
 
-/* House points are kept per device, in this browser only */
-const tally = () => { const t = store.get("arcade-house-points"); return t && typeof t==="object" ? t : {}; };
-function bank(house, pts){ const t = tally(); t[house] = (+t[house]||0) + pts; store.set("arcade-house-points", t); }
-
 function renderWho(){
   $("#who").innerHTML = student
     ? `${esc(student.name)}, period ${esc(student.period)}${student.house?`, ${esc(student.house)}`:""} <button class="link" id="chg">Change</button>`
@@ -291,21 +284,11 @@ function home(){
           <span><span class="t">${x&&x.title?esc(x.title):"Unit "+n}</span><span class="meta">${ok?`${x.topics.length} topics`:"Coming soon"}</span></span>
         </button>`; }).join("")}
     </div>
-  </section>`}
-  ${tallyHTML()}`;
+  </section>`}`;
   app.querySelectorAll("[data-course]").forEach(b=>b.onclick=()=>{ courseKey=b.dataset.course; unitN=null; setRoute(); home(); });
   app.querySelectorAll("[data-unit]").forEach(b=>b.onclick=()=>{ unitN=+b.dataset.unit; setRoute(); home(); window.scrollTo(0,0); });
   const allu = $("#allu"); if (allu) allu.onclick=()=>{ unitN=null; setRoute(); home(); };
   app.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>go({unit:unitN, topic:+b.dataset.play, kind:b.dataset.kind}));
-}
-
-function tallyHTML(){
-  const t = tally(), rows = HOUSES.map(h=>[h, +t[h]||0]).sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0]));
-  return `<section class="unit">
-    <h2>House points</h2>
-    <p class="sub">Points earned on this device.</p>
-    <ol class="tally">${rows.map(([h,p])=>`<li${student&&student.house===h?' class="mine"':""}><span>${esc(h)}</span><b>${p}</b></li>`).join("")}</ol>
-  </section>`;
 }
 
 // Every ticket needs a name, a period, and a house first
@@ -349,7 +332,7 @@ function pickHouse(req, draft){
   app.innerHTML = `
   <div class="panel">
     <h2>Choose your house</h2>
-    <p class="hint">Your house goes on your score, and your points count toward its total on this device.</p>
+    <p class="hint">Your house goes on your score.</p>
     <div class="houses" role="group" aria-label="Houses">${HOUSES.map(h=>`<button class="house" data-house="${esc(h)}" aria-pressed="false">${esc(h)}</button>`).join("")}</div>
     <div class="err" id="er" role="alert"></div>
     <div class="row"><button class="btn" id="go">${req?"Start ticket":"Save"}</button><button class="btn ghost" id="bk">Back</button></div>
@@ -489,7 +472,6 @@ function results(){
   const code = String(checkCode(student.name, g.ticket, got)).padStart(4,"0");
   const score = `${got} of ${total}`;
   const secs = Math.floor((Date.now()-g.t0)/1000);
-  if (!g.banked){ g.banked = true; bank(student.house, g.points); }
   let send;
   if (FORM.url){
     const p = new URLSearchParams({usp:"pp_url"});
@@ -506,7 +488,6 @@ function results(){
     <h2>${esc(g.tp.n)} ${g.kind==="entry"?"Entry":"Exit"} ticket done</h2>
     <div class="stub bigstub" role="img" aria-label="${score} correct"><span class="score">${score}</span><small>${g.points} points in ${fmt(secs)}</small></div>
     <p class="hint">Ticket ${esc(g.ticket)} for ${esc(student.name)}, period ${esc(student.period)}, ${esc(student.house)}</p>
-    <p>+${g.points} house points for ${esc(student.house)}</p>
     <p>Check code <span class="code">${code}</span></p>
     ${send}
     ${missedItems.length?`<div class="review"><h3>Review what you missed</h3><ul>${missedItems.map(it=>`<li><strong>${esc(it[1])}</strong><br>${esc(it[0]==="mc"?it[2][it[3]]:it[0]==="seq"?it[2].join(" → "):it[2].map((cat,ci)=>`${cat}: ${it[3].filter(r=>r[1]===ci).map(r=>r[0]).join(", ")}`).join(". "))}</li>`).join("")}</ul></div>`:`<p>Clean sweep. Nothing to review.</p>`}
