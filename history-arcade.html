@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>History Arcade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f5f6fa; --card:#ffffff; --ink:#17203a; --muted:#566080; --line:#d8dbe7;
+  --gold:#f2b632; --gold-ink:#33260a; --navy:#22315e; --navy-ink:#ffffff;
+  --teal:#11735d; --teal-bg:#e1f2ec; --red:#b22f39; --red-bg:#fbe7e8;
+  --focus:#2f5bd3;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#10152a; --card:#192040; --ink:#e8ebf6; --muted:#a0a8c4; --line:#2c3558;
+    --gold:#f2b632; --gold-ink:#33260a; --navy:#3a4f96; --navy-ink:#ffffff;
+    --teal:#5fd1ad; --teal-bg:#123a31; --red:#ff8a93; --red-bg:#3c1c24; --focus:#8fb0ff;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10152a; --card:#192040; --ink:#e8ebf6; --muted:#a0a8c4; --line:#2c3558;
+  --gold:#f2b632; --gold-ink:#33260a; --navy:#3a4f96; --navy-ink:#ffffff;
+  --teal:#5fd1ad; --teal-bg:#123a31; --red:#ff8a93; --red-bg:#3c1c24; --focus:#8fb0ff;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1.0625rem;line-height:1.5}
+h1,h2,h3{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;line-height:1.1;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:60rem;margin:0 auto;padding:1.25rem 1rem 3rem}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.brand{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;font-size:1.15rem;letter-spacing:-.01em}
+.who{display:flex;gap:.5rem;align-items:center;color:var(--muted);font-size:.95rem}
+.link{background:none;border:0;padding:.25rem;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+/* Hero */
+.hero h1{font-size:clamp(2.6rem,9vw,5.25rem);font-weight:800;letter-spacing:-.035em}
+.hero p{max-width:36rem;color:var(--muted);margin:.75rem 0 1.5rem}
+.courses{display:flex;gap:.75rem;flex-wrap:wrap}
+
+/* Ticket stubs: the one bold element */
+.stub{
+  --notch:9px;
+  position:relative;border:0;background:var(--gold);color:var(--gold-ink);
+  padding:.85rem 1.35rem;font-weight:700;text-align:left;
+  -webkit-mask:radial-gradient(circle var(--notch) at 0 50%,#0000 97%,#000) left/51% 100% no-repeat,radial-gradient(circle var(--notch) at 100% 50%,#0000 97%,#000) right/51% 100% no-repeat;
+          mask:radial-gradient(circle var(--notch) at 0 50%,#0000 97%,#000) left/51% 100% no-repeat,radial-gradient(circle var(--notch) at 100% 50%,#0000 97%,#000) right/51% 100% no-repeat;
+  border-radius:4px;transition:transform .12s ease;
+}
+.stub::after{content:"";position:absolute;top:8px;bottom:8px;right:2.4rem;border-left:2px dashed color-mix(in srgb,var(--gold-ink) 35%,transparent)}
+.stub small{display:block;font-weight:400;font-size:.85rem;opacity:.8}
+.stub .tear{display:inline-block;width:2.4rem}
+.stub:hover{transform:translateY(-2px)}
+.stub.off{background:var(--card);color:var(--muted);box-shadow:inset 0 0 0 2px var(--line)}
+.stub.off::after{border-left-color:var(--line)}
+.stub.navy{background:var(--navy);color:var(--navy-ink)}
+.stub.navy::after{border-left-color:color-mix(in srgb,var(--navy-ink) 40%,transparent)}
+@media (prefers-reduced-motion:reduce){.stub{transition:none}.stub:hover{transform:none}}
+
+/* Topic list */
+.unit{margin-top:2.5rem}
+.unit h2{font-size:1.6rem;font-weight:700}
+.unit .sub{color:var(--muted);margin:.35rem 0 1.25rem}
+.topics{display:grid;gap:.6rem}
+.topic{display:grid;grid-template-columns:3.4rem 1fr auto;gap:.75rem;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.75rem .9rem}
+.topic .n{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;font-size:1.35rem;color:var(--muted)}
+.topic h3{font-size:1.05rem;font-weight:700;font-family:"Atkinson Hyperlegible",system-ui,sans-serif}
+.topic .meta{color:var(--muted);font-size:.9rem}
+.pair{display:flex;gap:.5rem}
+.pair .stub{padding:.55rem 2.9rem .55rem .9rem;font-size:.95rem}
+@media (max-width:560px){.topic{grid-template-columns:2.6rem 1fr}.pair{grid-column:1/-1}.pair .stub{flex:1}}
+
+/* Panels */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.4rem;max-width:40rem;margin:0 auto}
+.panel h2{font-size:1.7rem;margin-bottom:.5rem}
+label{display:block;font-weight:700;margin:1rem 0 .35rem}
+input,select{font:inherit;width:100%;padding:.65rem .75rem;border:2px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.hint{color:var(--muted);font-size:.92rem}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.25rem}
+.btn{border:0;border-radius:8px;padding:.7rem 1.1rem;font-weight:700;background:var(--navy);color:var(--navy-ink)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.err{color:var(--red);font-weight:700;margin-top:.5rem}
+
+/* Play */
+.hud{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem}
+.hud .tk{font-weight:700}
+.stats{display:flex;gap:1rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink)}
+.pips{display:flex;gap:.35rem;margin-bottom:1rem}
+.pip{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.pip.ok{background:var(--teal)} .pip.no{background:var(--red)} .pip.now{background:var(--gold)}
+.q{font-size:1.3rem;font-weight:700;margin:.25rem 0 1rem;max-width:44rem}
+.kind{color:var(--muted);font-size:.9rem}
+.opts{display:grid;gap:.5rem}
+.opt{text-align:left;border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:.75rem .9rem}
+.opt:hover:not([disabled]){border-color:var(--navy)}
+.opt.right{border-color:var(--teal);background:var(--teal-bg)}
+.opt.wrong{border-color:var(--red);background:var(--red-bg)}
+.opt[disabled]{cursor:default}
+.sortrow{display:grid;grid-template-columns:1fr auto;gap:.5rem;align-items:center;border:2px solid var(--line);border-radius:10px;padding:.5rem .6rem;background:var(--paper)}
+.sortrow.right{border-color:var(--teal);background:var(--teal-bg)}
+.sortrow.wrong{border-color:var(--red);background:var(--red-bg)}
+.seg{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:flex-end}
+.seg button{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:.3rem .7rem;font-size:.9rem}
+.seg button[aria-pressed="true"]{background:var(--navy);color:var(--navy-ink);border-color:var(--navy)}
+.seqcols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:640px){.seqcols{grid-template-columns:1fr}}
+.seqcols h4{margin:0 0 .4rem;font-size:.95rem;color:var(--muted)}
+.slot{display:flex;gap:.6rem;align-items:flex-start;text-align:left;width:100%;border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:.6rem .75rem;margin-bottom:.4rem}
+.slot .num{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;min-width:1.2rem}
+.slot.right{border-color:var(--teal);background:var(--teal-bg)}
+.slot.wrong{border-color:var(--red);background:var(--red-bg)}
+.empty{color:var(--muted);font-style:italic;padding:.5rem 0}
+.fb{margin-top:1rem;border-radius:10px;padding:.9rem 1rem}
+.fb.ok{background:var(--teal-bg)} .fb.no{background:var(--red-bg)}
+.fb strong{display:block;margin-bottom:.2rem}
+.fb .ans{margin:.35rem 0 0}
+
+/* Results */
+.result{text-align:center}
+.bigstub{display:inline-block;padding:1.2rem 4rem 1.2rem 1.6rem;cursor:default;margin:1rem 0}
+.bigstub:hover{transform:none}
+.bigstub .score{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:3rem;font-weight:800;line-height:1}
+.code{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:.08em}
+.review{text-align:left;margin-top:1.25rem}
+.review li{margin-bottom:.75rem}
+.note{background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:.8rem 1rem;margin-top:1rem;text-align:left}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+footer{color:var(--muted);font-size:.85rem;margin-top:3rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <span class="brand">History Arcade</span>
+    <span class="who" id="who"></span>
+  </div>
+  <main id="app" aria-live="polite"></main>
+  <footer>Questions follow the College Board CED topics. Scores go to your teacher only when you choose to send them.</footer>
+</div>
+
+<script>
+/* ===== Teacher form connection =====
+   Paste the Google Form pre-filled link details here. Leave url empty until the form exists. */
+const FORM = {
+  url: "",
+  f: { name:"", period:"", ticket:"", score:"", missed:"", code:"" }
+};
+const PERIODS = ["1","2","4","5","6","7"];
+
+/* ===== Question banks =====
+   mc:  ["mc", question, [options], correctIndex, why]
+   sort:["sort", question, [catA, catB], [[item, catIndex],...], why]
+   seq: ["seq", question, [items in correct order], why]                 */
+const COURSES = {
+ world:{
+  key:"world", code:"W", name:"AP World History: Modern", unit:"Unit 4: Transoceanic Interconnections, c. 1450–1750",
+  topics:[
+   {n:"4.1",t:"Technological Innovations",items:[
+    ["mc","Which tool, refined from earlier Greek and Islamic designs, helped sailors find their latitude?",["Astrolabe","Magnetic compass","Sextant","Telescope"],0,"The astrolabe measured the angle of the sun or stars above the horizon, which gives latitude. The compass shows direction, not position, and the sextant came later, in the 1730s."],
+    ["mc","What made the Portuguese caravel well suited to exploring the African coast?",["It combined lateen and square sails, so it could sail against the wind","It used oars and could move without wind","It could carry hundreds of colonists","It was armored with iron plating"],0,"Lateen sails, borrowed from Mediterranean and Indian Ocean sailors, let the caravel tack into the wind. Square sails gave it speed with the wind behind it."],
+    ["mc","Which state led early European advances in Atlantic navigation in the 1400s?",["Portugal","England","The Dutch Republic","France"],0,"Portugal, under sponsors like Prince Henry “the Navigator,” funded voyages down the African coast decades before its rivals."],
+    ["sort","Sort each technology by where it originated.",["Outside Europe","In Europe"],[["Magnetic compass",0],["Lateen sail",0],["Gunpowder",0],["Caravel",1],["Dutch fluyt cargo ship",1]],"Europeans adopted the compass and gunpowder from China and the lateen sail from Arab and Indian Ocean sailors, then built new ships like the caravel and fluyt."],
+    ["seq","Put these in chronological order, earliest first.",["Zheng He’s treasure fleets sail the Indian Ocean (1405–1433)","Portuguese sailors pass Cape Bojador (1434)","Dias rounds the Cape of Good Hope (1488)","Mercator publishes his map projection (1569)"],"Ming voyages ended just as Portuguese voyages along Africa began, a useful comparison for an LEQ."]
+   ]},
+   {n:"4.2",t:"Exploration: Causes and Events",items:[
+    ["mc","What was a main goal of Portuguese voyages along West Africa in the 1400s?",["Direct access to West African gold and a sea route to Asian spices","Settler colonies for Portugal’s surplus population","Escape from religious persecution","A northern passage to China"],0,"Portugal wanted to bypass North African and Venetian middlemen and reach gold and Indian Ocean spice markets directly."],
+    ["mc","What did the Treaty of Tordesillas (1494) do?",["Divided newly claimed lands outside Europe between Spain and Portugal","Ended the Reconquista","Gave the Dutch trading rights in Asia","Created the first joint-stock company"],0,"With papal backing, Spain and Portugal drew a dividing line, which is why Brazil became Portuguese."],
+    ["mc","English, French, and Dutch voyages to North America in the 1500s were largely seeking:",["A northern sea route to Asia","Silver mines like those in Peru","Converts for the Catholic Church","Enslaved laborers"],0,"Cabot, Cartier, and Hudson searched for a Northwest Passage. Fish and furs became the actual payoff."],
+    ["sort","Sort each motive for exploration.",["Economic","Religious"],[["Access to Asian spices",0],["West African gold",0],["Spreading Christianity",1],["Finding Christian allies against Muslim states",1]],"“Gold, God, and glory.” Pairing an economic and a religious motive shows complexity on an LEQ."],
+    ["seq","Put these in chronological order, earliest first.",["Dias rounds the Cape of Good Hope (1488)","Columbus reaches the Caribbean (1492)","Treaty of Tordesillas (1494)","Vasco da Gama reaches Calicut (1498)","Magellan’s expedition circles the globe (1519–1522)"],"Within ten years, Iberian sailors opened both the Atlantic route to the Americas and the sea route to India."]
+   ]},
+   {n:"4.3",t:"Columbian Exchange",items:[
+    ["mc","What was the main cause of the collapse of Indigenous populations in the Americas after 1492?",["Epidemic diseases such as smallpox","Warfare with European armies","Famine caused by European crops","Migration to Europe"],0,"War and forced labor mattered, but diseases Indigenous peoples had never been exposed to killed the largest share."],
+    ["mc","Which American crop most helped population growth in Europe and Asia after 1500?",["Potato","Sugarcane","Rice","Wheat"],0,"Potatoes, like maize, produced high calories on poor soil. Sugarcane, rice, and wheat all came from Afro-Eurasia."],
+    ["mc","Horses brought by the Spanish transformed which Indigenous societies?",["Peoples of the North American Great Plains","The Inca of the Andes","The Maya of the Yucatán","Caribbean island peoples"],0,"Plains peoples such as the Comanche and Lakota adopted horses for bison hunting and warfare."],
+    ["sort","Sort each by the direction it traveled.",["Americas to Afro-Eurasia","Afro-Eurasia to Americas"],[["Potato",0],["Maize",0],["Cassava",0],["Horses",1],["Sugarcane",1],["Smallpox",1]],"Cassava became a staple in parts of Africa, while sugarcane planted in the Americas drove the Atlantic slave trade."],
+    ["mc","Sugar cultivation in Brazil and the Caribbean most directly increased:",["The transatlantic trade in enslaved Africans","Indigenous control of coastal land","European emigration to Africa","Use of the encomienda in Asia"],0,"Sugar was labor-intensive and deadly work, and planters turned to enslaved African labor on a massive scale."]
+   ]},
+   {n:"4.4",t:"Maritime Empires Established",items:[
+    ["mc","Portugal’s empire in the Indian Ocean was built mainly through:",["Fortified trading posts and control of sea lanes","Conquest of large inland territories","Settlement by millions of colonists","An alliance with the Mughals"],0,"Posts like Goa and Malacca, armed ships, and the cartaz pass system let Portugal tax trade without ruling large populations."],
+    ["mc","Which factor most helped small Spanish forces defeat the Aztec Empire by 1521?",["Indigenous allies such as the Tlaxcalans, plus epidemic disease","A larger Spanish army","Ottoman military advisers","The Aztecs’ lack of an organized state"],0,"Thousands of Indigenous allies who resented Aztec rule fought with Cortés, and smallpox devastated Tenochtitlan."],
+    ["mc","Joint-stock companies like the Dutch East India Company (VOC) were:",["Privately funded, state-chartered companies that spread risk among investors","Government agencies run by royal officials","Religious orders that ran missions","Guilds controlling local crafts"],0,"Investors bought shares, so no single merchant bore the whole loss. The state granted monopolies and even the right to wage war."],
+    ["sort","Sort each by how the empire mainly expanded at first.",["Territorial conquest","Fortified trading posts"],[["Spain in Mexico",0],["Spain in Peru",0],["Portugal at Goa and Malacca",1],["Portugal at Elmina in West Africa",1],["The Dutch at Batavia (early 1600s)",1]],"Land conquest in the Americas versus trading-post empires in Afro-Eurasia is a classic Unit 4 comparison."],
+    ["seq","Put these in chronological order, earliest first.",["Portugal seizes Goa (1510)","Fall of Tenochtitlan (1521)","Pizarro captures Atahualpa (1532)","English East India Company chartered (1600)","Dutch East India Company founded (1602)"],"Iberian empires came first. Northern European states followed a century later with joint-stock companies."]
+   ]},
+   {n:"4.5",t:"Maritime Empires Maintained and Developed",items:[
+    ["mc","How did the Spanish use the mit’a system?",["They adapted an Inca labor draft to force Indigenous men to work in mines like Potosí","They paid wages to free miners","They imported enslaved Africans","They taxed Spanish colonists"],0,"The Inca mit’a was rotational labor for the state. The Spanish turned it into brutal forced labor in silver and mercury mines."],
+    ["mc","Under the encomienda system, Spanish colonists were granted:",["Indigenous labor and tribute in exchange for Christianizing them","Land titles they could sell freely","Permission to trade directly with China","Seats in a colonial legislature"],0,"The Crown later tried to limit encomiendas after critics like Bartolomé de las Casas exposed the abuse."],
+    ["mc","Much of the silver mined at Potosí eventually flowed to:",["China, where the Ming required taxes paid in silver","Ottoman mints in Istanbul","Mughal temples","West African kingdoms"],0,"Through Spain and the Manila galleons, American silver paid for Chinese silk and porcelain, linking the world economy."],
+    ["sort","Sort each labor system by who it mainly drew on.",["Indigenous labor","Enslaved Africans"],[["Mit’a in the Andes",0],["Encomienda in New Spain",0],["Caribbean sugar plantations",1],["Brazilian sugar mills (engenhos)",1]],"Both were coerced, but chattel slavery was hereditary and racialized. Be ready to compare them."],
+    ["seq","Put these in chronological order, earliest first.",["Silver discovered at Potosí (1545)","Manila galleon trade begins (1565)","Viceroy Toledo reorganizes the mit’a (1570s)","England charters the Royal African Company (1672)"],"Silver mining and the Manila galleons connected the Americas and Asia within a few decades."]
+   ]},
+   {n:"4.6",t:"Internal and External Challenges to State Power",items:[
+    ["mc","Queen Njinga resisted the expansion of which power in Ndongo and Matamba?",["Portugal","The Netherlands","Spain","England"],0,"Njinga used diplomacy, conversion, alliances (even with the Dutch), and war to resist Portuguese slave-raiding in present-day Angola."],
+    ["mc","What did the Pueblo Revolt of 1680 achieve?",["Pueblo peoples drove the Spanish out of New Mexico for about twelve years","It ended the encomienda across New Spain","It forced Spain to abolish slavery","It made New Mexico an independent republic"],0,"Led by Popé, it was one of the most successful Indigenous challenges to Spanish rule. The Spanish returned in 1692."],
+    ["mc","Maratha resistance led by Shivaji mainly challenged which state?",["The Mughal Empire","The Ottoman Empire","The British East India Company","The Safavid Empire"],0,"Maratha expansion drained Mughal resources and helped weaken the empire after Aurangzeb."],
+    ["sort","Sort each challenge by its main target.",["A state’s own rulers or elites","A foreign colonial power"],[["The Fronde in France",0],["Maratha expansion against the Mughals",0],["Pugachev’s Rebellion in Russia",0],["The Pueblo Revolt",1],["Njinga’s resistance in Ndongo",1]],"The CED groups internal challenges and resistance to colonizers under the same topic."],
+    ["seq","Put these in chronological order, earliest first.",["Njinga negotiates with the Portuguese in Luanda (1622)","The Fronde begins in France (1648)","Shivaji crowned Maratha king (1674)","The Pueblo Revolt (1680)","Pugachev’s Rebellion (1773–1775)"],"Challenges to state power came from every region and continued through the whole period."]
+   ]},
+   {n:"4.7",t:"Changing Social Hierarchies",items:[
+    ["mc","The casta system in Spanish America ranked people mainly by:",["Ancestry and racial mixture","Religion only","Wealth only","Occupation only"],0,"Peninsulares were at the top, with mixed-race, Indigenous, and African people ranked below. Wealth could blur the lines but not erase them."],
+    ["mc","People of Spanish descent born in the Americas were called:",["Creoles (criollos)","Peninsulares","Mestizos","Mulattoes"],0,"Creoles resented that Spain-born peninsulares held the top offices, a tension behind later independence movements."],
+    ["mc","How did the Manchu rulers of the Qing dynasty mark their authority over Han Chinese subjects?",["By requiring Han men to wear the queue hairstyle","By banning the civil-service exams","By forcing conversion to Islam","By abolishing the emperor’s title"],0,"The Qing kept the exams and Confucian rule but imposed the queue as a visible sign of loyalty."],
+    ["mc","The Ottoman devshirme system:",["Took Christian boys from the Balkans, converted them, and trained them as Janissaries or officials","Granted land to Turkish nobles for taxes","Let Christians buy exemption from service","Recruited merchants to run trade"],0,"Devshirme recruits owed everything to the sultan, giving rulers a loyal elite outside the nobility."],
+    ["seq","Order these groups from highest to lowest status in the casta system.",["Peninsulares","Creoles","Mestizos and mulattoes","Indigenous people and enslaved Africans"],"Know the order, and also that it was contested and enforced unevenly."]
+   ]},
+   {n:"4.8",t:"Continuity and Change, 1450–1750",items:[
+    ["mc","Which was the most significant change in global trade from 1450 to 1750?",["The Americas joined Afro-Eurasian trade networks","The Indian Ocean network collapsed","Silk Road trade ended completely","China stopped trading with foreigners"],0,"Truly global trade began only after 1492. The Indian Ocean and Silk Road networks continued."],
+    ["mc","Which describes a continuity in the Indian Ocean from 1450 to 1750?",["Asian and African merchants still carried most trade even as Europeans joined","Europeans replaced all Asian merchants by 1550","Trade shifted entirely to land routes","Muslim merchants were expelled"],0,"Europeans used force to insert themselves, but local merchant communities stayed central."],
+    ["sort","Sort each development from 1450 to 1750.",["Continuity","Change"],[["Asian merchants dominate Indian Ocean trade",0],["Powerful land empires like the Ottomans and Qing",0],["Agriculture employs most people",0],["The Americas join global trade",1],["The Atlantic slave trade expands dramatically",1],["Joint-stock companies finance overseas trade",1]],"Strong CCOT essays explain both what changed and what stayed the same."],
+    ["mc","Which best explains the expansion of the Atlantic slave trade after 1500?",["Plantation demand for labor grew after Indigenous populations collapsed","European laws required enslaved factory labor","African states stopped trading with Europeans","The Ottomans closed Indian Ocean ports"],0,"Causation: disease, cash crops, and the search for labor are linked."],
+    ["mc","Why was China’s demand for silver important to the world economy?",["It pulled American and Japanese silver into China, linking global trade","It made China stop exporting goods","It ended European trade with Asia","It led China to colonize the Americas"],0,"Ming tax policy created the silver demand that made Spanish American mining so profitable."]
+   ]}
+  ]
+ },
+ euro:{
+  key:"euro", code:"E", name:"AP European History", unit:"Unit 3: Absolutism and Constitutionalism, c. 1648–1815",
+  topics:[
+   {n:"3.1",t:"Contextualizing State Building",items:[
+    ["mc","What did the Peace of Westphalia (1648) do?",["Ended the Thirty Years’ War and confirmed the sovereignty of the German states","United the German states under the Habsburgs","Made Catholicism the only legal faith in the Empire","Created the Dutch East India Company"],0,"Westphalia recognized Calvinism and left the Holy Roman Empire weak and divided. It is the starting context for Unit 3."],
+    ["mc","Absolutist monarchs in the 1600s and 1700s mainly tried to:",["Concentrate power by limiting nobles and building bureaucracies and standing armies","Share power with elected legislatures","Shrink the state to cut taxes","Return power to the Church"],0,"Absolutist rulers claimed sovereignty not shared with representative bodies, though in practice they still bargained with elites."],
+    ["mc","In constitutional states such as England after 1688 and the Dutch Republic, sovereignty was:",["Shared with representative bodies that controlled taxation","Held only by the monarch","Held by the pope","Held by town guilds"],0,"Parliament and the Dutch Estates-General controlled money, which limited rulers."],
+    ["sort","Sort each state.",["Mainly absolutist","Mainly constitutional"],[["France under Louis XIV",0],["Prussia under the Hohenzollerns",0],["Russia under Peter the Great",0],["England after 1688",1],["The Dutch Republic",1]],"This is the core comparison of the unit."],
+    ["seq","Put these in chronological order, earliest first.",["Peace of Westphalia (1648)","Louis XIV begins personal rule (1661)","Glorious Revolution (1688)","Peter the Great founds St. Petersburg (1703)","Treaty of Utrecht (1713)"],"These dates frame the age of absolutism and constitutionalism."]
+   ]},
+   {n:"3.2",t:"The English Civil War and the Glorious Revolution",items:[
+    ["mc","What was a major cause of conflict between Charles I and Parliament?",["He raised taxes without Parliament’s consent and pushed religious changes Puritans opposed","He tried to make England a republic","Parliament wanted to rejoin the Catholic Church","He refused to fight Spain"],0,"Money, religion, and royal prerogative together led to civil war in 1642."],
+    ["mc","After Charles I was executed in 1649, England was ruled by:",["Oliver Cromwell, eventually as Lord Protector","James II","William and Mary","The House of Lords alone"],0,"The Commonwealth and Protectorate lasted until the Restoration of Charles II in 1660."],
+    ["mc","The English Bill of Rights (1689) established that:",["The monarch needed Parliament’s consent to tax or keep a standing army in peacetime","The king ruled by divine right","Catholics could hold the throne","The king could suspend Parliament at will"],0,"This is the key evidence that England became a constitutional monarchy."],
+    ["mc","John Locke argued that:",["People may overthrow a government that violates their natural rights","Only an absolute ruler can prevent a war of all against all","Kings answer only to God","Property should be held in common"],0,"The second option is Thomas Hobbes in Leviathan (1651). Locke’s Two Treatises (1689) justified the Glorious Revolution."],
+    ["seq","Put these in chronological order, earliest first.",["English Civil War begins (1642)","Charles I is executed (1649)","Restoration of Charles II (1660)","William and Mary take the throne (1688)","Parliament passes the Bill of Rights (1689)"],"England moved from civil war to republic to restored monarchy to constitutional monarchy in under fifty years."]
+   ]},
+   {n:"3.3",t:"Continuities and Changes to Economic Practice",items:[
+    ["mc","Which practice was part of the Agricultural Revolution?",["Enclosing common fields and rotating crops like turnips and clover","Abolishing private land ownership","Returning to the three-field system","Banning crops from the Americas"],0,"Enclosure and new rotations raised yields but pushed many rural poor off the land."],
+    ["mc","Under the putting-out (cottage) system:",["Merchants supplied raw materials to rural households who made goods at home","Workers made goods in mechanized factories","Guilds controlled rural production","The state ran the workshops"],0,"It let merchants avoid town guild rules and drew rural families, including women and children, into market production."],
+    ["mc","The Price Revolution of the 1500s and 1600s was caused partly by:",["The flow of American silver into Europe","A falling population","The end of long-distance trade","The abolition of serfdom"],0,"More silver plus population growth drove inflation that hurt people on fixed incomes."],
+    ["sort","Sort each 17th–18th century economic development.",["Continuity","Change"],[["Most Europeans still work in agriculture",0],["Guilds still regulate many town crafts",0],["Enclosure of common lands",1],["New crops such as the potato",1],["Putting-out spreads to the countryside",1]],"Change came alongside strong continuities in rural life."],
+    ["mc","The Bank of England (1694) was created mainly to:",["Lend money to the government to fund war","Make loans to peasants","Replace Parliament’s control of taxes","Finance the Church"],0,"Reliable public credit helped Britain outspend larger rivals like France."]
+   ]},
+   {n:"3.4",t:"Economic Development and Mercantilism",items:[
+    ["mc","Mercantilists believed a state grew stronger by:",["Exporting more than it imported and accumulating gold and silver","Allowing free trade with all nations","Shrinking its navy","Giving up its colonies"],0,"Mercantilism assumed wealth was limited, so one state’s gain was another’s loss."],
+    ["mc","Colbert, Louis XIV’s finance minister, promoted French power by:",["Subsidizing industries, raising tariffs, and building infrastructure and a navy","Lowering all tariffs","Selling French colonies","Abolishing royal monopolies"],0,"Colbert is the go-to example of mercantilism in practice."],
+    ["mc","England’s Navigation Acts (beginning 1651) required that:",["Colonial trade be carried on English ships, cutting out Dutch shippers","Colonists trade freely with France","All trade pass through Amsterdam","The colonies build their own navies"],0,"The acts helped spark the Anglo-Dutch Wars."],
+    ["sort","Sort each idea or policy.",["Mercantilist","Not mercantilist"],[["High tariffs on imported manufactures",0],["Colonies supply raw materials to the home country",0],["State-chartered trading monopolies",0],["Free trade among rival nations",1],["Adam Smith’s “invisible hand” (1776)",1]],"Smith’s Wealth of Nations was a direct critique of mercantilism."],
+    ["seq","Put these in chronological order, earliest first.",["First Navigation Act (1651)","Colbert becomes controller-general of finances (1665)","Bank of England founded (1694)","South Sea Bubble bursts (1720)","Smith publishes The Wealth of Nations (1776)"],"Mercantilist policy dominated for over a century before Smith challenged it."]
+   ]},
+   {n:"3.5",t:"The Dutch Golden Age",items:[
+    ["mc","The Dutch Republic’s 17th-century prosperity rested mainly on:",["Commerce, shipping, and finance","Silver mines","A large peasant army","Monopolies granted by an absolute king"],0,"Fluyt ships, the VOC, and the Bank of Amsterdam made Amsterdam Europe’s financial center."],
+    ["mc","How was the Dutch Republic governed?",["As a decentralized republic of provinces led by merchant regents, with a stadholder from the House of Orange","As an absolute monarchy","As a theocracy run by Calvinist ministers","As a province of the Holy Roman Empire"],0,"Power was spread across provinces, and wealthy urban regents dominated."],
+    ["mc","Compared with most of Europe, the Dutch Republic was known for:",["Relative religious toleration that attracted refugees, Jews, and printers","Banning all non-Calvinist worship","Expelling Catholics","Censoring all scientific books"],0,"The public church was Calvinist, but others could worship privately, and Dutch presses printed books banned elsewhere."],
+    ["mc","Dutch painters such as Rembrandt and Vermeer often depicted:",["Everyday life and portraits for merchant buyers","Scenes glorifying absolute kings","Only church altarpieces","Mostly Crusade battle scenes"],0,"A wealthy urban market, not just royal or church patrons, shaped Dutch art."],
+    ["seq","Put these in chronological order, earliest first.",["Dutch Revolt against Spain begins (1568)","Union of Utrecht unites the northern provinces (1579)","VOC founded (1602)","Bank of Amsterdam founded (1609)","Spain recognizes Dutch independence (1648)"],"The Dutch built their commercial empire while still fighting for independence."]
+   ]},
+   {n:"3.6",t:"Balance of Power",items:[
+    ["mc","The principle of the balance of power meant that:",["States formed alliances to keep any single power from dominating Europe","The pope settled disputes between kings","Borders stayed fixed permanently","Monarchs shared power with parliaments"],0,"Coalitions repeatedly formed against Louis XIV and later against other rising powers."],
+    ["mc","The Treaty of Utrecht (1713) ended the War of the Spanish Succession by:",["Letting a Bourbon keep the Spanish throne but forbidding union of the French and Spanish crowns","Uniting France and Spain under Louis XIV","Giving Spain to the Habsburgs","Dividing Spain between Britain and Austria"],0,"Britain also gained Gibraltar and trade rights, a sign of its rise."],
+    ["mc","Frederick II of Prussia started the War of the Austrian Succession in 1740 by:",["Seizing Silesia from Maria Theresa","Invading France","Attacking Russia","Annexing Poland"],0,"He ignored the Pragmatic Sanction, which guaranteed Maria Theresa’s right to inherit the Habsburg lands."],
+    ["mc","The Diplomatic Revolution of 1756 was surprising because:",["Longtime rivals Austria and France became allies","Britain and France formed a permanent alliance","Russia withdrew from Europe","Prussia joined the Holy Roman Empire"],0,"Britain then allied with Prussia, setting the sides for the Seven Years’ War."],
+    ["seq","Put these in chronological order, earliest first.",["Treaty of Utrecht (1713)","Frederick II seizes Silesia (1740)","Diplomatic Revolution (1756)","Treaty of Paris ends the Seven Years’ War (1763)","First Partition of Poland (1772)"],"Each shift in alliances aimed to stop one power from getting too strong."]
+   ]},
+   {n:"3.7",t:"Absolutist Approaches to Power",items:[
+    ["mc","Louis XIV used the palace of Versailles to:",["Keep nobles at court, dependent on royal favor and away from regional power","Host the Estates-General","House the French Parliament","Train the navy"],0,"Court ritual turned powerful nobles into courtiers."],
+    ["mc","Prussia’s Hohenzollern rulers gained Junker support by:",["Confirming their power over serfs in exchange for service as army officers","Abolishing serfdom","Giving them control of taxation","Making them elected representatives"],0,"This bargain built Europe’s most militarized state."],
+    ["mc","When Louis XIV revoked the Edict of Nantes in 1685:",["Many Huguenots fled France, taking skills and capital abroad","Catholics were expelled","France adopted toleration","The Jesuits were banned"],0,"It reflected the ideal of “one king, one law, one faith,” and it cost France economically."],
+    ["sort","Sort each by ruler.",["Louis XIV of France","Peter the Great of Russia"],[["Built Versailles",0],["Revoked the Edict of Nantes",0],["Used royal intendants in the provinces",0],["Created the Table of Ranks",1],["Founded St. Petersburg",1],["Taxed beards to push Western customs",1]],"Both centralized power, but Peter also forced westernization."],
+    ["seq","Put these in chronological order, earliest first.",["Louis XIV begins personal rule (1661)","Revocation of the Edict of Nantes (1685)","Peter’s Grand Embassy to western Europe (1697–1698)","St. Petersburg founded (1703)","Table of Ranks introduced (1722)"],"Peter studied the western states that Louis XIV’s France led."]
+   ]},
+   {n:"3.8",t:"Comparison in the Age of Absolutism and Constitutionalism",items:[
+    ["mc","A key difference between England and France around 1700 was that:",["England’s Parliament controlled taxation, while the French king taxed without calling the Estates-General","France had a written constitution","England had an absolute monarch and France a republic","France had no nobility"],0,"The Estates-General did not meet between 1614 and 1789."],
+    ["mc","One similarity between England and France in this period is that both:",["Built larger armies, navies, and tax systems to wage war","Abolished their monarchies","Banned overseas trade","Ended all religious minorities"],0,"Strong comparison answers include a similarity, not just differences."],
+    ["mc","Absolutism in Prussia and Russia differed from France in that:",["Nobles gained more power over serfs as a reward for loyalty","Serfs were freed to work in factories","Nobles were removed from the army","Rulers shared power with parliaments"],0,"Eastern absolutism rested on the “second serfdom,” a bargain with landed nobles."],
+    ["sort","Sort each by country.",["England","France"],[["Bill of Rights (1689)",0],["Toleration Act for Protestant dissenters (1689)",0],["Parliament approves taxes",0],["Estates-General not called after 1614",1],["Huguenots driven out after 1685",1],["Versailles court culture",1]],"These are ready-made pieces of evidence for a comparison LEQ."],
+    ["mc","Which pair were both constitutional, commercial states with relative religious toleration?",["England and the Dutch Republic","France and Spain","Prussia and Russia","Austria and Poland"],0,"Their shared model contrasted with the absolutist states."]
+   ]}
+  ]
+ }
+};
+// Assign stable item ids like W4.2-b
+for (const c of Object.values(COURSES)) for (const tp of c.topics) tp.items.forEach((it,i)=>{ it.id = c.code+tp.n+"-"+"abcdefgh"[i]; });
+
+/* ===== Helpers ===== */
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const esc = s => String(s).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const normName = n => n.trim().replace(/\s+/g," ").toUpperCase();
+function checkCode(name, ticket, got){
+  const k = normName(name)+"|"+ticket; let s = 0;
+  for (let i=0;i<k.length;i++) s += k.charCodeAt(i)*(i+1);
+  return (s + got*97 + 4271) % 9973;
+}
+
+let student = store.get("arcade-student");
+let courseKey = location.hash === "#euro" ? "euro" : "world";
+let game = null, tick = null, pending = null;
+
+function renderWho(){
+  $("#who").innerHTML = student
+    ? `${esc(student.name)}, period ${esc(student.period)} <button class="link" id="chg">Change</button>`
+    : "";
+  const b = $("#chg"); if (b) b.onclick = () => signIn(null);
+}
+
+/* ===== Home ===== */
+function home(){
+  clearInterval(tick); game = null;
+  const c = COURSES[courseKey];
+  app.innerHTML = `
+  <section class="hero">
+    <h1>History Arcade</h1>
+    <p>Two-minute tickets. Take the entry ticket at the start of class and the exit ticket at the end. Send your score to your teacher when you finish.</p>
+    <div class="courses" role="group" aria-label="Choose your course">
+      ${Object.values(COURSES).map(x=>`<button class="stub ${x.key===courseKey?'':'off'}" data-course="${x.key}" aria-pressed="${x.key===courseKey}">${esc(x.name)}<small>${esc(x.unit.split(":")[0])}</small></button>`).join("")}
+    </div>
+  </section>
+  <section class="unit">
+    <h2>${esc(c.unit)}</h2>
+    <p class="sub">Entry tickets review earlier topics. Exit tickets check today’s topic.</p>
+    <div class="topics">
+      ${c.topics.map((tp,i)=>`
+        <div class="topic">
+          <span class="n">${tp.n}</span>
+          <div><h3>${esc(tp.t)}</h3><div class="meta">Entry: ${i===0?3:4} questions. Exit: ${tp.items.length} questions.</div></div>
+          <div class="pair">
+            <button class="stub navy" data-play="${i}" data-kind="entry">Entry</button>
+            <button class="stub" data-play="${i}" data-kind="exit">Exit</button>
+          </div>
+        </div>`).join("")}
+    </div>
+  </section>`;
+  app.querySelectorAll("[data-course]").forEach(b=>b.onclick=()=>{ courseKey=b.dataset.course; history.replaceState(null,"","#"+courseKey); home(); });
+  app.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{
+    const req = {topic:+b.dataset.play, kind:b.dataset.kind};
+    if (!student) signIn(req); else start(req);
+  });
+}
+
+/* ===== Sign in ===== */
+function signIn(req){
+  clearInterval(tick);
+  pending = req;
+  app.innerHTML = `
+  <div class="panel">
+    <h2>Who’s playing?</h2>
+    <p class="hint">Use the name your teacher knows you by. It goes on your score.</p>
+    <label for="nm">Full name</label>
+    <input id="nm" autocomplete="name" value="${student?esc(student.name):""}">
+    <label for="pd">Class period</label>
+    <select id="pd"><option value="">Choose your period</option>${PERIODS.map(p=>`<option ${student&&student.period===p?"selected":""}>${p}</option>`).join("")}</select>
+    <div class="err" id="er" role="alert"></div>
+    <div class="row"><button class="btn" id="go">${req?"Start ticket":"Save"}</button><button class="btn ghost" id="bk">Back</button></div>
+  </div>`;
+  $("#nm").focus();
+  $("#go").onclick = () => {
+    const name=$("#nm").value.trim(), period=$("#pd").value;
+    if (name.split(/\s+/).length<2){ $("#er").textContent="Enter your first and last name."; return; }
+    if (!period){ $("#er").textContent="Choose your class period."; return; }
+    student={name,period}; store.set("arcade-student",student); renderWho();
+    pending ? start(pending) : home();
+  };
+  $("#bk").onclick = home;
+}
+
+/* ===== Game ===== */
+function start({topic,kind}){
+  const c = COURSES[courseKey], tp = c.topics[topic];
+  let items;
+  if (kind==="exit") items = shuffle(tp.items);
+  else if (topic===0) items = shuffle(tp.items).slice(0,3);
+  else items = shuffle(c.topics.slice(0,topic).flatMap(t=>t.items)).slice(0,4);
+  game = { c, tp, kind, ticket:`${c.code}${tp.n}-${kind.toUpperCase()}`, items, i:0, results:[], points:0, streak:0, t0:Date.now(), qt:Date.now() };
+  clearInterval(tick); tick = setInterval(updClock, 1000);
+  question();
+}
+const fmt = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+function updClock(){ const el=$("#clk"); if(el&&game) el.textContent = fmt(Math.floor((Date.now()-game.t0)/1000)); }
+
+function hud(){
+  const g=game;
+  return `<div class="hud">
+    <span class="tk">${esc(g.tp.n)} ${g.kind==="entry"?"Entry":"Exit"} ticket</span>
+    <span class="stats"><span>Question <b>${g.i+1}</b> of ${g.items.length}</span><span><b id="clk">${fmt(Math.floor((Date.now()-g.t0)/1000))}</b></span><span><b>${g.points}</b> pts</span></span>
+  </div>
+  <div class="pips" aria-hidden="true">${g.items.map((_,k)=>`<span class="pip ${k<g.results.length?(g.results[k].ok?"ok":"no"):(k===g.i?"now":"")}"></span>`).join("")}</div>`;
+}
+
+function question(){
+  const g=game, it=g.items[g.i]; g.qt=Date.now();
+  let body="", kindLabel="";
+  if (it[0]==="mc"){
+    kindLabel="Pick one";
+    const order = shuffle(it[2].map((o,k)=>k));
+    body = `<div class="opts">${order.map(k=>`<button class="opt" data-k="${k}">${esc(it[2][k])}</button>`).join("")}</div>`;
+  } else if (it[0]==="sort"){
+    kindLabel="Sort every item, then check";
+    const rows = shuffle(it[3].map((r,k)=>k));
+    body = `<div class="opts">${rows.map(k=>`<div class="sortrow" data-r="${k}"><span>${esc(it[3][k][0])}</span><span class="seg" role="group" aria-label="${esc(it[3][k][0])}">${it[2].map((cat,ci)=>`<button data-c="${ci}" aria-pressed="false">${esc(cat)}</button>`).join("")}</span></div>`).join("")}</div>
+      <div class="row"><button class="btn" id="chk" disabled>Check</button></div>`;
+  } else {
+    kindLabel="Tap the items in order";
+    g.seqPool = shuffle(it[2].map((x,k)=>k)); g.seqPick=[];
+    body = `<div class="seqcols"><div><h4>Events</h4><div id="pool"></div></div><div><h4>Your order</h4><div id="pick"></div></div></div>
+      <div class="row"><button class="btn" id="chk" disabled>Check</button><button class="btn ghost" id="clr">Clear</button></div>`;
+  }
+  app.innerHTML = `<div class="panel" style="max-width:48rem">${hud()}<div class="kind">${kindLabel}</div><p class="q">${esc(it[1])}</p>${body}<div id="fb"></div></div>`;
+
+  if (it[0]==="mc"){
+    app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+      const k=+b.dataset.k, ok=k===it[3];
+      app.querySelectorAll(".opt").forEach(x=>{ x.disabled=true; if(+x.dataset.k===it[3]) x.classList.add("right"); });
+      if(!ok) b.classList.add("wrong");
+      finish(ok, ok?"":`Correct answer: ${it[2][it[3]]}`);
+    });
+  } else if (it[0]==="sort"){
+    const picks={};
+    app.querySelectorAll(".sortrow").forEach(row=>{
+      row.querySelectorAll("button").forEach(btn=>btn.onclick=()=>{
+        picks[row.dataset.r]=+btn.dataset.c;
+        row.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", x===btn));
+        $("#chk").disabled = Object.keys(picks).length<it[3].length;
+      });
+    });
+    $("#chk").onclick=()=>{
+      let ok=true;
+      app.querySelectorAll(".sortrow").forEach(row=>{
+        const r=+row.dataset.r, good=picks[r]===it[3][r][1]; if(!good) ok=false;
+        row.classList.add(good?"right":"wrong"); row.querySelectorAll("button").forEach(x=>x.disabled=true);
+      });
+      $("#chk").remove();
+      const key = it[2].map((cat,ci)=>`${cat}: ${it[3].filter(r=>r[1]===ci).map(r=>r[0]).join(", ")}`).join(". ");
+      finish(ok, ok?"":key+".");
+    };
+  } else {
+    const draw=()=>{
+      $("#pool").innerHTML = g.seqPool.length ? g.seqPool.map(k=>`<button class="slot" data-k="${k}"><span>${esc(it[2][k])}</span></button>`).join("") : `<div class="empty">All placed.</div>`;
+      $("#pick").innerHTML = g.seqPick.length ? g.seqPick.map((k,n)=>`<button class="slot" data-k="${k}" aria-label="Remove ${esc(it[2][k])}"><span class="num">${n+1}</span><span>${esc(it[2][k])}</span></button>`).join("") : `<div class="empty">Tap an event to place it first.</div>`;
+      $("#pool").querySelectorAll(".slot").forEach(b=>b.onclick=()=>{ const k=+b.dataset.k; g.seqPool=g.seqPool.filter(x=>x!==k); g.seqPick.push(k); draw(); });
+      $("#pick").querySelectorAll(".slot").forEach(b=>b.onclick=()=>{ const k=+b.dataset.k; g.seqPick=g.seqPick.filter(x=>x!==k); g.seqPool.push(k); draw(); });
+      $("#chk").disabled = g.seqPool.length>0;
+    };
+    draw();
+    $("#clr").onclick=()=>{ g.seqPool=shuffle(it[2].map((x,k)=>k)); g.seqPick=[]; draw(); };
+    $("#chk").onclick=()=>{
+      const ok = g.seqPick.every((k,n)=>k===n);
+      $("#pick").querySelectorAll(".slot").forEach((b,n)=>{ b.disabled=true; b.classList.add(+b.dataset.k===n?"right":"wrong"); });
+      $("#chk").remove(); $("#clr").remove();
+      finish(ok, ok?"":`Correct order: ${it[2].join(" → ")}`);
+    };
+  }
+}
+
+function finish(ok, answer){
+  const g=game, it=g.items[g.i], secs=(Date.now()-g.qt)/1000;
+  if (ok){ g.streak++; g.points += 100 + Math.max(0, Math.round(60-4*secs)) + (g.streak>=3?50:0); } else g.streak=0;
+  g.results.push({id:it.id, ok});
+  const last = g.i===g.items.length-1;
+  $("#fb").innerHTML = `<div class="fb ${ok?"ok":"no"}"><strong>${ok?(g.streak>=3?`Correct. Streak of ${g.streak}.`:"Correct."):"Not quite."}</strong>${answer?`<p class="ans">${esc(answer)}</p>`:""}<p class="ans">${esc(it[it[0]==="mc"?4:(it[0]==="sort"?4:3)])}</p></div>
+    <div class="row"><button class="btn" id="nx">${last?"See my score":"Next question"}</button></div>`;
+  app.querySelector(".pips").innerHTML = g.items.map((_,k)=>`<span class="pip ${k<g.results.length?(g.results[k].ok?"ok":"no"):""}"></span>`).join("");
+  const pts=app.querySelectorAll(".stats b")[2]; if(pts) pts.textContent=g.points;
+  $("#nx").focus();
+  $("#nx").onclick=()=>{ if(last) results(); else { g.i++; question(); } };
+}
+
+/* ===== Results ===== */
+function results(){
+  clearInterval(tick);
+  const g=game, got=g.results.filter(r=>r.ok).length, total=g.items.length;
+  const missed = g.results.filter(r=>!r.ok).map(r=>r.id);
+  const code = String(checkCode(student.name, g.ticket, got)).padStart(4,"0");
+  const score = `${got} of ${total}`;
+  const secs = Math.floor((Date.now()-g.t0)/1000);
+  let send;
+  if (FORM.url){
+    const p = new URLSearchParams({usp:"pp_url"});
+    p.set(FORM.f.name, student.name); p.set(FORM.f.period, student.period); p.set(FORM.f.ticket, g.ticket);
+    p.set(FORM.f.score, score); p.set(FORM.f.missed, missed.length?missed.join(", "):"None"); p.set(FORM.f.code, code);
+    send = `<a class="stub" style="text-decoration:none;padding-right:3.2rem" href="${esc(FORM.url+"?"+p.toString())}" target="_blank" rel="noopener">Send to teacher<small>Opens the form. Press Submit.</small></a>`;
+  } else {
+    send = `<div class="note"><strong>Score sending isn’t connected yet.</strong> Show this screen to your teacher or take a screenshot.</div>`;
+  }
+  const missedItems = g.items.filter(it=>missed.includes(it.id));
+  app.innerHTML = `
+  <div class="panel result">
+    <h2>${esc(g.tp.n)} ${g.kind==="entry"?"Entry":"Exit"} ticket done</h2>
+    <div class="stub bigstub" role="img" aria-label="${score} correct"><span class="score">${score}</span><small>${g.points} points in ${fmt(secs)}</small></div>
+    <p class="hint">Ticket ${esc(g.ticket)} for ${esc(student.name)}, period ${esc(student.period)}</p>
+    <p>Check code <span class="code">${code}</span></p>
+    ${send}
+    ${missedItems.length?`<div class="review"><h3>Review what you missed</h3><ul>${missedItems.map(it=>`<li><strong>${esc(it[1])}</strong><br>${esc(it[0]==="mc"?it[2][it[3]]:it[0]==="seq"?it[2].join(" → "):it[2].map((cat,ci)=>`${cat}: ${it[3].filter(r=>r[1]===ci).map(r=>r[0]).join(", ")}`).join(". "))}</li>`).join("")}</ul></div>`:`<p>Clean sweep. Nothing to review.</p>`}
+    <div class="row" style="justify-content:center"><button class="btn ghost" id="again">Play again</button><button class="btn" id="menu">All tickets</button></div>
+  </div>`;
+  $("#again").onclick=()=>start({topic:g.c.topics.indexOf(g.tp), kind:g.kind});
+  $("#menu").onclick=home;
+}
+
+renderWho(); home();
+</script>
+</body>
+</html>
